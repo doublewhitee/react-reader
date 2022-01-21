@@ -1,26 +1,20 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+import NavBar from './components/NavBar'
+import Bookshelf from './pages/Bookshelf'
+import Sort from './pages/Sort'
 
-export default App;
+const App: React.FC = () => (
+  <BrowserRouter>
+    <Routes>
+      <Route path="/bookshelf" element={<Bookshelf />} />
+      <Route path="/sort" element={<Sort />} />
+      <Route path="*" element={<Navigate to="/bookshelf" />} />
+    </Routes>
+
+    <NavBar />
+  </BrowserRouter>
+)
+
+export default App

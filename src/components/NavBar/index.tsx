@@ -1,0 +1,99 @@
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import './index.less'
+
+import bookshelf from '../../assets/imgs/bookshelf.png'
+import bookshelfActive from '../../assets/imgs/bookshelf_active.png'
+import recommend from '../../assets/imgs/recommend.png'
+import recommendActive from '../../assets/imgs/recommend_active.png'
+import sort from '../../assets/imgs/sort.png'
+import sortActive from '../../assets/imgs/sort_active.png'
+
+const NavBar: React.FC = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [activeName, setActiveName] = useState('')
+
+  useEffect(() => {
+    setActiveName(() => location.pathname)
+  }, [])
+
+  const handleClickItem = (link: string) => {
+    if (activeName !== link) {
+      setActiveName(() => link)
+      navigate(link)
+    }
+  }
+
+  return (
+    <div id="nav-bar">
+      <div
+        className="nav-bar-item"
+        role="tab"
+        tabIndex={0}
+        onClick={() => handleClickItem('/bookshelf')}
+        onKeyDown={() => handleClickItem('/bookshelf')}
+      >
+        <img
+          src={bookshelf}
+          alt="bookshelf"
+          className="icons"
+          style={{ display: activeName === '/bookshelf' ? 'none' : '' }}
+        />
+        <img
+          src={bookshelfActive}
+          alt="bookshelf"
+          className="icons"
+          style={{ display: activeName === '/bookshelf' ? '' : 'none' }}
+        />
+        <div className={activeName === '/bookshelf' ? 'active-name' : ''}>书架</div>
+      </div>
+
+      <div
+        className="nav-bar-item"
+        role="tab"
+        tabIndex={0}
+        onClick={() => handleClickItem('/recommend')}
+        onKeyDown={() => handleClickItem('/recommend')}
+      >
+        <img
+          src={recommend}
+          alt="recommend"
+          className="icons"
+          style={{ display: activeName === '/recommend' ? 'none' : '' }}
+        />
+        <img
+          src={recommendActive}
+          alt="recommend"
+          className="icons"
+          style={{ display: activeName === '/recommend' ? '' : 'none' }}
+        />
+        <div className={activeName === '/recommend' ? 'active-name' : ''}>精选</div>
+      </div>
+
+      <div
+        className="nav-bar-item"
+        role="tab"
+        tabIndex={0}
+        onClick={() => handleClickItem('/sort')}
+        onKeyDown={() => handleClickItem('/sort')}
+      >
+        <img
+          src={sort}
+          alt="sort"
+          className="icons"
+          style={{ display: activeName === '/sort' ? 'none' : '' }}
+        />
+        <img
+          src={sortActive}
+          alt="sort"
+          className="icons"
+          style={{ display: activeName === '/sort' ? '' : 'none' }}
+        />
+        <div className={activeName === '/sort' ? 'active-name' : ''}>分类</div>
+      </div>
+    </div>
+  );
+};
+
+export default NavBar

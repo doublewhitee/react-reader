@@ -1,0 +1,49 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "extends": [
+        "plugin:react/recommended",
+        "airbnb"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "ecmaVersion": 13,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "react",
+        "@typescript-eslint"
+    ],
+    "rules": {
+      "no-use-before-define": [0],
+      "@typescript-eslint/no-use-before-define": [1],
+      "react/jsx-filename-extension": [2, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
+      "import/extensions": [
+        0,
+        "ignorePackages",
+        {
+          "js": "never",
+          "jsx": "never",
+          "ts": "never",
+          "tsx": "never"
+        }
+      ],
+      "import/no-unresolved": 0,
+      "trailing-comma": 0,
+      "comma-dangle": 0,
+      "react/function-component-definition": 0,
+      "object-curly-newline": 0,
+      "indent": [2, 2], // 控制缩进为2
+      "react/jsx-indent": [2,2], // 语法缩进控制
+      "no-var": 2, // 对var禁止
+      "semi": 0,
+      "react/no-deprecated": 1, // 不使用弃用的方法
+      "react/prop-types": 0, //防止在react组件定义中缺少props验证
+      "react/display-name": 0
+    }
+}
