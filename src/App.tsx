@@ -1,20 +1,16 @@
 import React from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 
-import NavBar from './components/NavBar'
-import Bookshelf from './pages/Bookshelf'
-import Sort from './pages/Sort'
+import Layout from './pages/Layout'
+import Search from './pages/Search'
 
 const App: React.FC = () => (
-  <BrowserRouter>
+  <div>
     <Routes>
-      <Route path="/bookshelf" element={<Bookshelf />} />
-      <Route path="/sort" element={<Sort />} />
-      <Route path="*" element={<Navigate to="/bookshelf" />} />
+      <Route path="/search" element={<Search />} />
+      <Route path="*" element={<Layout />} />
     </Routes>
-
-    <NavBar />
-  </BrowserRouter>
+  </div>
 )
 
 export default App

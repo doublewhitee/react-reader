@@ -38,6 +38,7 @@
       "comma-dangle": 0,
       "react/function-component-definition": 0,
       "object-curly-newline": 0,
+      "linebreak-style": 0,
       "indent": [2, 2], // 控制缩进为2
       "react/jsx-indent": [2,2], // 语法缩进控制
       "no-var": 2, // 对var禁止

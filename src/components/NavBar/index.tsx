@@ -15,12 +15,11 @@ const NavBar: React.FC = () => {
   const [activeName, setActiveName] = useState('')
 
   useEffect(() => {
-    setActiveName(() => location.pathname)
-  }, [])
+    setActiveName(location.pathname)
+  })
 
   const handleClickItem = (link: string) => {
     if (activeName !== link) {
-      setActiveName(() => link)
       navigate(link)
     }
   }

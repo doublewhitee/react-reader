@@ -1,0 +1,32 @@
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { LeftOutlined, SearchOutlined } from '@ant-design/icons'
+import './index.less'
+
+interface TopBarProps {
+  title: string
+  showBack?: boolean
+}
+
+const TopBar: React.FC<TopBarProps> = (props) => {
+  const navigate = useNavigate()
+  const { title, showBack } = props
+
+  const handleClickSearch = () => {
+    navigate('/search')
+  }
+
+  return (
+    <div id="topBar">
+      <LeftOutlined className="icon" style={{ visibility: showBack ? 'visible' : 'hidden' }} />
+      <div>{title}</div>
+      <SearchOutlined className="icon" onClick={handleClickSearch} />
+    </div>
+  )
+}
+
+TopBar.defaultProps = {
+  showBack: true
+}
+
+export default TopBar

@@ -1,20 +1,21 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import { BrowserRouter } from 'react-router-dom'
 
 import 'normalize.css'
 // antd
-import { ConfigProvider } from 'antd';
-import zhCN from 'antd/lib/locale/zh_CN';
+import { ConfigProvider } from 'antd'
+import zhCN from 'antd/lib/locale/zh_CN'
 
 import './index.less'
 import App from './App'
 
 ReactDOM.render(
-  <React.StrictMode>
-    <ConfigProvider locale={zhCN}>
+  <ConfigProvider locale={zhCN}>
+    <BrowserRouter>
       <App />
-    </ConfigProvider>
-  </React.StrictMode>,
+    </BrowserRouter>
+  </ConfigProvider>,
   document.getElementById('root')
 )
 
