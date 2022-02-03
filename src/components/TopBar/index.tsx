@@ -12,13 +12,17 @@ const TopBar: React.FC<TopBarProps> = (props) => {
   const navigate = useNavigate()
   const { title, showBack } = props
 
+  const handleBack = () => {
+    navigate(-2)
+  }
+
   const handleClickSearch = () => {
     navigate('/search')
   }
 
   return (
     <div id="topBar">
-      <LeftOutlined className="icon" style={{ visibility: showBack ? 'visible' : 'hidden' }} />
+      <LeftOutlined className="icon" style={{ visibility: showBack ? 'visible' : 'hidden' }} onClick={handleBack} />
       <div>{title}</div>
       <SearchOutlined className="icon" onClick={handleClickSearch} />
     </div>

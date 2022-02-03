@@ -8,8 +8,8 @@ import Sort from '../Sort'
 const Layout: React.FC = () => (
   <div>
     <Routes>
-      <Route path="/bookshelf" element={<Bookshelf />} />
-      <Route path="/sort" element={<Sort />} />
+      <Route path="bookshelf" element={<Bookshelf />} />
+      <Route path="sort/*" element={<Sort />} />
       <Route path="*" element={<Navigate to="/bookshelf" />} />
     </Routes>
 

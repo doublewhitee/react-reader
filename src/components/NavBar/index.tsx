@@ -12,14 +12,14 @@ import sortActive from '../../assets/imgs/sort_active.png'
 const NavBar: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const [activeName, setActiveName] = useState('')
+  const [activeName, setActiveName] = useState<string>('')
 
   useEffect(() => {
     setActiveName(location.pathname)
   })
 
   const handleClickItem = (link: string) => {
-    if (activeName !== link) {
+    if (activeName.indexOf(link) === -1) {
       navigate(link)
     }
   }
@@ -81,15 +81,15 @@ const NavBar: React.FC = () => {
           src={sort}
           alt="sort"
           className="icons"
-          style={{ display: activeName === '/sort' ? 'none' : '' }}
+          style={{ display: activeName.indexOf('/sort') !== -1 ? 'none' : '' }}
         />
         <img
           src={sortActive}
           alt="sort"
           className="icons"
-          style={{ display: activeName === '/sort' ? '' : 'none' }}
+          style={{ display: activeName.indexOf('/sort') !== -1 ? '' : 'none' }}
         />
-        <div className={activeName === '/sort' ? 'active-name' : ''}>分类</div>
+        <div className={activeName.indexOf('/sort') !== -1 ? 'active-name' : ''}>分类</div>
       </div>
     </div>
   );

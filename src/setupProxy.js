@@ -1,12 +1,18 @@
 const { createProxyMiddleware } = require('http-proxy-middleware')
 
-module.exports = function (app) {
-  app.use(createProxyMiddleware('/zhuishu', {
+const zsFilter = (pathname) => {
+  const path = pathname.replace(/\/.+?\/zhuishu/, '/zhuishu')
+  return path.match('^/zhuishu')
+}
+
+module.exports = (app) => {
+  app.use(createProxyMiddleware(zsFilter, {
     target: 'http://api.zhuishushenqi.com',
     secure: false,
     changeOrigin: true,
     pathRewrite: {
-      '^/zhuishu': ''
+      '^/zhuishu': '',
+      '/.+?/zhuishu': ''
     }
   }))
 }
