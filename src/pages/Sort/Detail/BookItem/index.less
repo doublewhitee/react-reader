@@ -1,0 +1,34 @@
+.book-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+}
+
+.item-cover {
+  width: 80px;
+  height: 105px;
+  border-radius: 10px;
+}
+
+.item-info {
+  div {
+    margin-bottom: 5px;
+    padding-left: 10px;
+  }
+  .item-title {
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .item-author {
+    color: #999;
+  }
+  .item-intro {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box; //作为弹性伸缩盒子模型显示
+    -webkit-box-orient: vertical; //设置伸缩盒子的子元素排列方式--从上到下垂直排列
+    -webkit-line-clamp: 2; //显示的行
+  }
+}

@@ -15,19 +15,28 @@ interface cateDataObj {
   bookCover: string[]
 }
 
-const Home: React.FC = () => {
+interface HomeProps {
+  active: string
+  setActive: React.Dispatch<React.SetStateAction<string>>
+}
+
+const Home: React.FC<HomeProps> = (props) => {
   const navigate = useNavigate()
   const [cateData, setCateData] = useState(null)
-  const [active, setActive] = useState<string>('male')
+  const [activeData, setActiveData] = useState(null)
+  // const [active, setActive] = useState<string>('male')
   const [loading, setLoading] = useState<boolean>(true)
   const [total, setTotal] = useState<number>(0)
   const scrollRef = useRef<any>(null)
+
+  const { active, setActive } = props
 
   const reqCate = async () => {
     const res = await getCate()
     if (res && res.status === 200) {
       const { data } = res
       setCateData(data)
+      setActiveData(data[active])
       let sum: number = 0
       if (data) {
         (data[active] as cateDataObj[]).forEach((i) => {
@@ -35,7 +44,6 @@ const Home: React.FC = () => {
         })
       }
       setTotal(sum)
-      scrollRef.current?.refresh()
     } else {
       message.error('似乎出了一点问题...')
     }
@@ -46,9 +54,16 @@ const Home: React.FC = () => {
     reqCate()
   }, [])
 
+  useEffect(() => {
+    // 得到数据后刷新scroll重置高度
+    scrollRef.current?.refresh()
+  }, [activeData])
+
   const updateActiveItem = (item: string) => {
     if (active !== item) {
       setActive(item)
+      setActiveData(cateData ? cateData[item] : null)
+      // 切换分类后回到顶部
       scrollRef.current?.scrollTo(0, 0)
     }
     let sum: number = 0
@@ -60,8 +75,8 @@ const Home: React.FC = () => {
     setTotal(sum)
   }
 
-  const handleClickSortItem = () => {
-    navigate('/sort/detail')
+  const handleClickSortItem = (name: string) => {
+    navigate('/sort/detail', { state: { cate: name } })
   }
 
   return (
@@ -79,13 +94,13 @@ const Home: React.FC = () => {
             <div className="total">{`共${total}部`}</div>
             <Row>
               {
-                (cateData ? cateData[active] as cateDataObj[] : []).map((i) => (
+                (activeData ? activeData as cateDataObj[] : []).map((i) => (
                   <SortItem
                     name={i.name}
                     count={i.bookCount}
                     cover={i.bookCover[0]}
                     key={i.name}
-                    clickItem={handleClickSortItem}
+                    clickItem={() => handleClickSortItem(i.name)}
                   />
                 ))
               }

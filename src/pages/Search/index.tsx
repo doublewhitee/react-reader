@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Input, Tag, message } from 'antd'
-import { SearchOutlined, SyncOutlined } from '@ant-design/icons'
+import { Select, Tag, Skeleton, message } from 'antd'
+import { LeftOutlined, SyncOutlined } from '@ant-design/icons'
 import './index.less'
 
-import { getSearchHotWords, getHotWord } from '../../api/search'
+import { getSearchHotWords, getHotWord, getAutoComplete } from '../../api/search'
+import { useDebounce } from '../../utils'
+
+const { Option } = Select
 
 interface tagDataObj {
   word: string
@@ -18,6 +21,9 @@ const Search: React.FC = () => {
   const [tagData, setTagData] = useState(null)
   const [tagIndex, setTagIndex] = useState<number>(0)
   const [hotBook, setHotBook] = useState<string[]>([])
+  const [loading, setLoading] = useState<boolean>(false)
+  const [searchText, setSearchText] = useState<string | null>()
+  const [autoWords, setAutoWords] = useState<string[]>([])
 
   const reqSearchHotWords = async () => {
     const res = await getSearchHotWords()
@@ -30,10 +36,22 @@ const Search: React.FC = () => {
   }
 
   const reqHotWord = async () => {
+    setLoading(true)
     const res = await getHotWord()
     if (res && res.status === 200) {
       const { data } = res
       setHotBook(data.hotWords)
+      setLoading(false)
+    } else {
+      message.error('似乎出了一点问题...')
+    }
+  }
+
+  const reqAutoComplete = async (query: string) => {
+    const res = await getAutoComplete(query)
+    if (res && res.status === 200) {
+      const { data } = res
+      setAutoWords(data.keywords)
     } else {
       message.error('似乎出了一点问题...')
     }
@@ -48,6 +66,15 @@ const Search: React.FC = () => {
     navigate(-1)
   }
 
+  const handleSelectChange = (value: string) => {
+    setSearchText(value)
+  }
+
+  const handleSearchWord = useDebounce(async (query: string) => {
+    await reqAutoComplete(query)
+    setSearchText(query)
+  }, 1000)
+
   const handleRefreshTags = () => {
     if (tagIndex < 9) {
       setTagIndex((i) => i + 1)
@@ -56,18 +83,38 @@ const Search: React.FC = () => {
     }
   }
 
+  const handleSearch = () => {
+    console.log('search')
+  }
+
   return (
     <div className="container">
       <div className="search-box">
-        <Input placeholder="搜索发现" prefix={<SearchOutlined />} />
+        <LeftOutlined style={{ width: '50px', fontSize: '18px' }} onClick={handleBack} />
+        <Select
+          showSearch
+          placeholder="搜索发现"
+          value={searchText}
+          showArrow={false}
+          defaultActiveFirstOption={false}
+          filterOption={false}
+          onChange={handleSelectChange}
+          onSearch={handleSearchWord}
+          notFoundContent={null}
+          style={{ width: '100%' }}
+        >
+          {
+            autoWords.map((i) => <Option key={i}>{i}</Option>)
+          }
+        </Select>
         <div
           role="tab"
           tabIndex={0}
-          onClick={handleBack}
-          onKeyDown={handleBack}
+          onClick={handleSearch}
+          onKeyDown={handleSearch}
           style={{ width: '50px' }}
         >
-          取消
+          搜索
         </div>
       </div>
 
@@ -88,16 +135,23 @@ const Search: React.FC = () => {
 
       <div className="hot-card">
         <div className="hot-card-title">热搜作品榜</div>
-        <div>
-          {
-            hotBook.map((i, index) => (
-              <div className="hot-card-item" key={i}>
-                <span className={index < 3 ? 'hot-card-index-top' : 'hot-card-index'}>{index + 1}</span>
-                {i}
-              </div>
-            ))
-          }
-        </div>
+        <Skeleton
+          active
+          title={false}
+          paragraph={{ rows: 10, width: '100%' }}
+          loading={loading}
+        >
+          <div>
+            {
+              hotBook.map((i, index) => (
+                <div className="hot-card-item" key={i}>
+                  <span className={index < 3 ? 'hot-card-index-top' : 'hot-card-index'}>{index + 1}</span>
+                  {i}
+                </div>
+              ))
+            }
+          </div>
+        </Skeleton>
       </div>
     </div>
   )

@@ -1,9 +1,12 @@
-import React from 'react'
+import React from 'react';
 
-const Bookshelf: React.FC = () => (
-  <div>
-    bookshelf
-  </div>
-)
+const Bookshelf: React.FC = () => {
+  console.log('---------')
+  return (
+    <div>
+      Bookshelf
+    </div>
+  );
+};
 
 export default Bookshelf

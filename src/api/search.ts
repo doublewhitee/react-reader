@@ -13,3 +13,11 @@ export function getHotWord() {
     url: '/book/hot-word'
   })
 }
+
+// 搜索自动补充
+export function getAutoComplete(query: string) {
+  return zsRequest({
+    url: '/book/auto-complete',
+    params: { query }
+  })
+}

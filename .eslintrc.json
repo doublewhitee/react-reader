@@ -42,6 +42,7 @@
       "indent": [2, 2], // 控制缩进为2
       "react/jsx-indent": [2,2], // 语法缩进控制
       "no-var": 2, // 对var禁止
+      "no-underscore-dangle": 0,
       "semi": 0,
       "react/no-deprecated": 1, // 不使用弃用的方法
       "react/prop-types": 0, //防止在react组件定义中缺少props验证
