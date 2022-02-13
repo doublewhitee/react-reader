@@ -17,7 +17,7 @@ const TopBar: React.FC<TopBarProps> = (props) => {
   }
 
   const handleClickSearch = () => {
-    navigate('/search')
+    navigate('/search/index')
   }
 
   return (

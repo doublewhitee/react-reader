@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Tag, Spin, message } from 'antd'
+import PubSub from 'pubsub-js'
 import './index.less'
 
 import Scroll from '../../../components/Scroll'
@@ -33,6 +34,8 @@ const Detail: React.FC<DetailProps> = (props) => {
   const [checkedTag, setCheckedTag] = useState({ cate: '全部', type: 'hot' })
   const [bookList, setBookList] = useState<bookListObj[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const [isPullingUp, setIsPullingUp] = useState<boolean>(false) // 上拉状态
+  const [isEnd, setIsEnd] = useState<boolean>(false) // 是否加载完成
 
   const { minorCate, gender } = props
 
@@ -44,12 +47,25 @@ const Detail: React.FC<DetailProps> = (props) => {
     minor?: string
   ) => {
     setLoading(true)
-    const res = minor
+    const res = minor && minor !== '' && minor !== '全部'
       ? await getBookList(type, genderType, major, start, minor)
       : await getBookList(type, genderType, major, start)
     if (res && res.status === 200) {
       const { data } = res
-      setBookList([...bookList, ...(data as any).books])
+      setBookList((list) => {
+        const temp = [...list, ...(data as any).books]
+        const obj: any = {}
+        const arr = temp.reduce((item, next) => {
+          // eslint-disable-next-line no-unused-expressions
+          obj[next._id] ? '' : (obj[next._id] = true && item.push(next))
+          return item
+        }, [])
+        // 全部加载完成
+        if (arr.length === data.total) {
+          setIsEnd(true)
+        }
+        return arr
+      })
     } else {
       message.error('似乎出了一点问题...')
     }
@@ -62,8 +78,34 @@ const Detail: React.FC<DetailProps> = (props) => {
       navigate('/sort/index')
     } else {
       reqBookList(checkedTag.type, gender, (location.state as any).cate, 0)
+      PubSub.subscribe('pull-up', async () => {
+        setIsPullingUp(true)
+      })
+    }
+    return () => {
+      // 取消订阅
+      PubSub.unsubscribe('pull-up')
     }
   }, [])
+
+  useEffect(() => {
+    if (isPullingUp !== false) {
+      if (!isEnd) {
+        reqBookList(
+          checkedTag.type,
+          gender,
+          (location.state as any).cate,
+          bookList.length
+        ).then(() => {
+          PubSub.publish('pull-up-finish')
+        })
+      } else {
+        message.info('已展示所有数据')
+        PubSub.publish('pull-up-finish')
+      }
+      setIsPullingUp(false)
+    }
+  }, [isPullingUp])
 
   useEffect(() => {
     scrollRef1.current?.refresh()
@@ -74,8 +116,15 @@ const Detail: React.FC<DetailProps> = (props) => {
     scrollRef3.current?.refresh()
   }, [bookList])
 
-  const handleChangeTag = (tag: string, type: string) => {
-    setCheckedTag({ ...checkedTag, [type]: tag })
+  const handleChangeTag = async (tag: string, type: string) => {
+    const tags = { ...checkedTag, [type]: tag }
+    setCheckedTag(tags)
+    // 清空booklist数据，重置isEnd
+    setBookList([])
+    setIsEnd(false)
+    await reqBookList(tags.type, gender, (location.state as any).cate, 0, tags.cate)
+    // scroll回到顶部
+    scrollRef3.current?.scrollTo(0, 0)
   }
 
   return (
@@ -115,7 +164,7 @@ const Detail: React.FC<DetailProps> = (props) => {
       </Scroll>
 
       <div className="books">
-        <Scroll ref={scrollRef3} id="scroll_3">
+        <Scroll ref={scrollRef3} id="scroll_3" pullUp>
           {
             bookList.map((i) => (
               <BookItem

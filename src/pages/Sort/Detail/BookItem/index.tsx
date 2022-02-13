@@ -13,10 +13,9 @@ interface BookItemProps {
 
 const BookItem: React.FC<BookItemProps> = (props) => {
   const { _id, title, author, cover, shortIntro } = props
-  console.log(_id)
 
   return (
-    <div className="book-item">
+    <div className="book-item" key={_id}>
       <img src={ZHUISHU_IMG_URL + cover} alt="cover" className="item-cover" />
       <div className="item-info">
         <div className="item-title">{title}</div>

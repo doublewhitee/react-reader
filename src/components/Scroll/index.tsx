@@ -1,16 +1,25 @@
 import React, { useState, useEffect, useImperativeHandle } from 'react'
 import BScroll from 'better-scroll'
+import PubSub from 'pubsub-js'
+
+import { useDebounce } from '../../utils'
 
 interface ScrollProps {
   probeType?: number
   direction?: 'horizontal' | 'vertical'
   id?: string
+  pullUp?: boolean
 }
 
 const Scroll: React.FC<any> = React.forwardRef<any, ScrollProps>((props, ref) => {
   const [bScroll, setBScroll] = useState<any>()
   // const wrapper: any = useRef()
-  const { probeType, direction, id, children } = props
+  const { probeType, direction, id, pullUp, children } = props
+
+  const handlePullUp = useDebounce(() => {
+    PubSub.publish('pull-up')
+    bScroll.refresh()
+  }, 2000)
 
   useEffect(() => {
     const wrapper = document.getElementById(id!)
@@ -18,9 +27,25 @@ const Scroll: React.FC<any> = React.forwardRef<any, ScrollProps>((props, ref) =>
       click: true,
       probeType,
       scrollX: direction === 'horizontal',
-      scrollY: direction === 'vertical'
+      scrollY: direction === 'vertical',
+      pullUpLoad: pullUp ? true : ''
     })
     setBScroll(scroll)
+    // 监听滚动到底部
+    if (pullUp) {
+      scroll.on('pullingUp', handlePullUp)
+      // 监听滚动到底部回调
+      PubSub.subscribe('pull-up-finish', () => {
+        scroll.finishPullUp()
+        scroll.refresh()
+      })
+    }
+    return () => {
+      if (pullUp) {
+        // 取消订阅
+        PubSub.unsubscribe('pull-up-finish')
+      }
+    }
   }, [])
 
   // 使用 ref 时自定义暴露给父组件的实例值
@@ -55,7 +80,8 @@ const Scroll: React.FC<any> = React.forwardRef<any, ScrollProps>((props, ref) =>
 Scroll.defaultProps = {
   probeType: 0,
   direction: 'vertical',
-  id: 'scroll-wrapper'
+  id: 'scroll-wrapper',
+  pullUp: false
 }
 
 export default Scroll

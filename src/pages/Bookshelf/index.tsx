@@ -1,10 +1,14 @@
-import React from 'react';
+import React from 'react'
+
+import { useThrottle } from '../../utils'
 
 const Bookshelf: React.FC = () => {
-  console.log('---------')
+  const handleC = useThrottle(() => {
+    console.log('click')
+  }, 1000)
   return (
     <div>
-      Bookshelf
+      <button type="button" onClick={handleC}>a</button>
     </div>
   );
 };

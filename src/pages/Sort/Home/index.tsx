@@ -92,7 +92,7 @@ const Home: React.FC<HomeProps> = (props) => {
         <Scroll ref={scrollRef}>
           <div>
             <div className="total">{`共${total}部`}</div>
-            <Row>
+            <Row style={{ padding: '0 10px' }}>
               {
                 (activeData ? activeData as cateDataObj[] : []).map((i) => (
                   <SortItem

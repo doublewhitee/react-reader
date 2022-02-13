@@ -7,7 +7,7 @@ import Search from './pages/Search'
 const App: React.FC = () => (
   <div>
     <Routes>
-      <Route path="search" element={<Search />} />
+      <Route path="search/*" element={<Search />} />
       <Route path="*" element={<Layout />} />
     </Routes>
   </div>
