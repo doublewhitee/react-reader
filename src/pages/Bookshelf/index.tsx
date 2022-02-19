@@ -10,7 +10,7 @@ const Bookshelf: React.FC = () => {
     <div>
       <button type="button" onClick={handleC}>a</button>
     </div>
-  );
-};
+  )
+}
 
 export default Bookshelf

@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Select, Tag, Skeleton, message } from 'antd'
-import { LeftOutlined, SyncOutlined } from '@ant-design/icons'
+import { Tag, Skeleton, message } from 'antd'
+import { SyncOutlined } from '@ant-design/icons'
 import './index.less'
 
-import { getSearchHotWords, getHotWord, getAutoComplete } from '../../../api/search'
-import { useDebounce } from '../../../utils'
-
-const { Option } = Select
+import { getSearchHotWords, getHotWord } from '../../../api/search'
 
 interface tagDataObj {
   word: string
@@ -16,14 +13,23 @@ interface tagDataObj {
   soaring: number
 }
 
-const Home: React.FC = () => {
-  const navigate = useNavigate()
+interface hotBookObj {
+  word: string
+  book: string
+}
+
+interface HomeProps {
+  setSearchText: Function
+}
+
+const Home: React.FC<HomeProps> = (props) => {
   const [tagData, setTagData] = useState(null)
   const [tagIndex, setTagIndex] = useState<number>(0)
-  const [hotBook, setHotBook] = useState<string[]>([])
+  const [hotBook, setHotBook] = useState<hotBookObj[]>([])
   const [loading, setLoading] = useState<boolean>(false)
-  const [searchText, setSearchText] = useState<string | null>()
-  const [autoWords, setAutoWords] = useState<string[]>([])
+  const navigate = useNavigate()
+
+  const { setSearchText } = props
 
   const reqSearchHotWords = async () => {
     const res = await getSearchHotWords()
@@ -40,18 +46,8 @@ const Home: React.FC = () => {
     const res = await getHotWord()
     if (res && res.status === 200) {
       const { data } = res
-      setHotBook(data.hotWords)
+      setHotBook(data.newHotWords)
       setLoading(false)
-    } else {
-      message.error('似乎出了一点问题...')
-    }
-  }
-
-  const reqAutoComplete = async (query: string) => {
-    const res = await getAutoComplete(query)
-    if (res && res.status === 200) {
-      const { data } = res
-      setAutoWords(data.keywords)
     } else {
       message.error('似乎出了一点问题...')
     }
@@ -62,19 +58,6 @@ const Home: React.FC = () => {
     reqHotWord()
   }, [])
 
-  const handleBack = () => {
-    navigate(-2)
-  }
-
-  const handleSelectChange = (value: string) => {
-    setSearchText(value)
-  }
-
-  const handleSearchWord = useDebounce(async (query: string) => {
-    await reqAutoComplete(query)
-    setSearchText(query)
-  }, 1000)
-
   const handleRefreshTags = () => {
     if (tagIndex < 9) {
       setTagIndex((i) => i + 1)
@@ -83,41 +66,17 @@ const Home: React.FC = () => {
     }
   }
 
-  const handleSearch = () => {
-    console.log('search')
+  const handleClickTag = (tag: string) => {
+    setSearchText(tag)
+    navigate(`/search/detail?key=${tag}`)
+  }
+
+  const handleClickHotBook = (id: string) => {
+    navigate(`/book/${id}`)
   }
 
   return (
-    <div className="container">
-      <div className="search-box">
-        <LeftOutlined style={{ width: '50px', fontSize: '18px' }} onClick={handleBack} />
-        <Select
-          showSearch
-          placeholder="搜索发现"
-          value={searchText}
-          showArrow={false}
-          defaultActiveFirstOption={false}
-          filterOption={false}
-          onChange={handleSelectChange}
-          onSearch={handleSearchWord}
-          notFoundContent={null}
-          style={{ width: '100%' }}
-        >
-          {
-            autoWords.map((i) => <Option key={i}>{i}</Option>)
-          }
-        </Select>
-        <div
-          role="tab"
-          tabIndex={0}
-          onClick={handleSearch}
-          onKeyDown={handleSearch}
-          style={{ width: '50px' }}
-        >
-          搜索
-        </div>
-      </div>
-
+    <div>
       <div className="search-tags">
         <div className="search-tags-title">
           <span>搜索发现</span>
@@ -127,7 +86,13 @@ const Home: React.FC = () => {
           {
             (tagData ? tagData as tagDataObj[] : []).slice(tagIndex * 10, tagIndex * 10 + 10)
               .map((i) => (
-                <Tag className="search-tags-item" key={i.word}>{i.word}</Tag>
+                <Tag
+                  className="search-tags-item"
+                  key={i.word}
+                  onClick={() => handleClickTag(i.word)}
+                >
+                  {i.word}
+                </Tag>
               ))
           }
         </div>
@@ -144,9 +109,16 @@ const Home: React.FC = () => {
           <div>
             {
               hotBook.map((i, index) => (
-                <div className="hot-card-item" key={i}>
+                <div
+                  className="hot-card-item"
+                  key={i.book}
+                  role="tab"
+                  tabIndex={0}
+                  onClick={() => handleClickHotBook(i.book)}
+                  onKeyDown={() => handleClickHotBook(i.book)}
+                >
                   <span className={index < 3 ? 'hot-card-index-top' : 'hot-card-index'}>{index + 1}</span>
-                  {i}
+                  {i.word}
                 </div>
               ))
             }

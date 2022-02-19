@@ -92,7 +92,7 @@ const NavBar: React.FC = () => {
         <div className={activeName.indexOf('/sort') !== -1 ? 'active-name' : ''}>分类</div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 export default NavBar

@@ -1,0 +1,70 @@
+.main {
+  background-color: #fff;
+  border-radius: 10px 10px 0 0;
+  padding: 0 15px 20px 15px;
+  min-height: calc(100vh - 310px);
+}
+
+.basic-info {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  .basic-info-item {
+    flex: 1;
+    .basic-info-item-title {
+      color: #999;
+    }
+    .basic-info-item-content {
+      font-size: 22px;
+      font-weight: bold;
+    }
+  }
+}
+
+.book-tags {
+  padding-top: 10px;
+  span {
+    margin-bottom: 10px;
+  }
+}
+
+.book-intro {
+  overflow: hidden;
+  position: relative;
+  display: -webkit-box; //作为弹性伸缩盒子模型显示
+  -webkit-box-orient: vertical; //设置伸缩盒子的子元素排列方式--从上到下垂直排列
+  -webkit-line-clamp: 3; //显示的行
+}
+
+.menu-info {
+  padding: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .menu-title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+}
+
+.book-recommend {
+  border-top: 1px solid #f0f0f0;
+  padding: 10px 0;
+  .book-recommend-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    span {
+      font-size: 18px;
+      font-weight: bold;
+    }
+  }
+  .book-recommend-cover {
+    width: 100%;
+    border-radius: 10px;
+  }
+  .book-recommend-author {
+    font-size: 12px;
+    color: #999;
+  }
+}

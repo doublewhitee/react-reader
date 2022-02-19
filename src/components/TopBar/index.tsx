@@ -4,16 +4,19 @@ import { LeftOutlined, SearchOutlined } from '@ant-design/icons'
 import './index.less'
 
 interface TopBarProps {
-  title: string
+  title?: string
   showBack?: boolean
+  showSearch?: boolean
+  showTitle?: boolean
+  iconColor?: string
 }
 
 const TopBar: React.FC<TopBarProps> = (props) => {
   const navigate = useNavigate()
-  const { title, showBack } = props
+  const { title, showBack, showSearch, showTitle, iconColor } = props
 
   const handleBack = () => {
-    navigate(-2)
+    navigate(title === '分类' ? -2 : -1)
   }
 
   const handleClickSearch = () => {
@@ -22,15 +25,29 @@ const TopBar: React.FC<TopBarProps> = (props) => {
 
   return (
     <div id="topBar">
-      <LeftOutlined className="icon" style={{ visibility: showBack ? 'visible' : 'hidden' }} onClick={handleBack} />
-      <div>{title}</div>
-      <SearchOutlined className="icon" onClick={handleClickSearch} />
+      <LeftOutlined
+        className="icon"
+        style={{ visibility: showBack ? 'visible' : 'hidden', color: iconColor }}
+        onClick={handleBack}
+      />
+      {
+        showTitle ? <div>{title}</div> : <div />
+      }
+      <SearchOutlined
+        className="icon"
+        onClick={handleClickSearch}
+        style={{ visibility: showSearch ? 'visible' : 'hidden', color: iconColor }}
+      />
     </div>
   )
 }
 
 TopBar.defaultProps = {
-  showBack: true
+  title: '',
+  showBack: true,
+  showSearch: true,
+  showTitle: true,
+  iconColor: '#555'
 }
 
 export default TopBar

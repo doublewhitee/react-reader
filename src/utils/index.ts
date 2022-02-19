@@ -52,7 +52,7 @@ export function useThrottle(fn: Function, delay: number, dep = []) {
     const context = this
     if (!current.timeout) {
       current.timeout = setTimeout(() => {
-        current.fn.apply(context, typeof args === 'object' ? args : [args])
+        current.fn.apply(context, [args])
         delete current.timeout
       }, delay)
     }

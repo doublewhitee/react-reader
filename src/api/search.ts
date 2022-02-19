@@ -21,3 +21,11 @@ export function getAutoComplete(query: string) {
     params: { query }
   })
 }
+
+// 模糊搜索书籍
+export function getFuzzySearch(query: string, start: number, limit: number = 20) {
+  return zsRequest({
+    url: '/book/fuzzy-search',
+    params: { query, start, limit }
+  })
+}

@@ -5,7 +5,7 @@ import PubSub from 'pubsub-js'
 import './index.less'
 
 import Scroll from '../../../components/Scroll'
-import BookItem from './BookItem'
+import BookItem from '../../../components/BookItem'
 
 import { getBookList } from '../../../api/sort'
 
@@ -78,7 +78,7 @@ const Detail: React.FC<DetailProps> = (props) => {
       navigate('/sort/index')
     } else {
       reqBookList(checkedTag.type, gender, (location.state as any).cate, 0)
-      PubSub.subscribe('pull-up', async () => {
+      PubSub.subscribe('pull-up', () => {
         setIsPullingUp(true)
       })
     }
@@ -180,7 +180,7 @@ const Detail: React.FC<DetailProps> = (props) => {
         </Scroll>
       </div>
     </Spin>
-  );
-};
+  )
+}
 
 export default Detail
