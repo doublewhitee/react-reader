@@ -68,7 +68,7 @@ const Home: React.FC<HomeProps> = (props) => {
 
   const handleClickTag = (tag: string) => {
     setSearchText(tag)
-    navigate(`/search/detail?key=${tag}`)
+    navigate(`/search/detail?key=${tag}`, { replace: true })
   }
 
   const handleClickHotBook = (id: string) => {

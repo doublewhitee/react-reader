@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 import TopBar from '../../components/TopBar'
 import Home from './Home'
@@ -14,6 +14,7 @@ interface minorCateDataObj {
 
 const Sort: React.FC = () => {
   const location = useLocation()
+  const navigate = useNavigate()
   const [title, setTitle] = useState<string>('')
   const [active, setActive] = useState<string>('male')
   const [minorCate, setMinorCate] = useState<string[]>([])
@@ -51,15 +52,19 @@ const Sort: React.FC = () => {
       setTitle('分类')
       setMinorCate([])
     }
-  }, [location])
+  }, [location, minorCateData])
+
+  const handleClickSortItem = (name: string) => {
+    navigate('/sort/detail', { state: { cate: name, gender: active } })
+  }
 
   return (
     <div style={{ height: '100vh' }}>
       <TopBar title={title} />
 
       <Routes>
-        <Route path="index" element={<Home active={active} setActive={setActive} />} />
-        <Route path="detail" element={<Detail minorCate={minorCate} gender={active} />} />
+        <Route path="index" element={<Home active={active} setActive={setActive} handleClickSortItem={handleClickSortItem} />} />
+        <Route path="detail" element={<Detail minorCate={minorCate} />} />
         <Route path="*" element={<Navigate to="/sort/index" />} />
       </Routes>
     </div>

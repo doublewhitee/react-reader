@@ -28,7 +28,7 @@ const Search: React.FC = () => {
   }
 
   const handleBack = () => {
-    navigate(-2)
+    navigate(-1)
   }
 
   const handleSelectChange = (value: string) => {
@@ -42,7 +42,7 @@ const Search: React.FC = () => {
 
   const handleSearch = () => {
     if (searchText && searchText !== '') {
-      navigate(`/search/detail?key=${searchText}`)
+      navigate(`/search/detail?key=${searchText}`, { replace: true })
     }
   }
 

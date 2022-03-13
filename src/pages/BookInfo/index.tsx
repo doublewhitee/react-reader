@@ -30,7 +30,8 @@ const BookInfo: React.FC = () => {
   const [bookInfo, setBookInfo] = useState<any>()
   const [topBarOpacity, setTopBarOpacity] = useState<number>(0)
   const [isMenuLoaded, setIsMenuLoaded] = useState<boolean>(false) // 目录是否加载完毕
-  const [isInShelf, setIsInShelf] = useState<boolean>(false)
+  const [isInShelf, setIsInShelf] = useState<boolean>(false) // 是否已在书架
+  const [readCh, setReadCh] = useState<string|null>(null) // 当前阅读章节id记录
 
   const reqBookInfo = async (id: string) => {
     setLoading(true)
@@ -48,8 +49,16 @@ const BookInfo: React.FC = () => {
     PubSub.subscribe('menu-loaded', () => {
       setIsMenuLoaded(true)
     })
+    PubSub.subscribe('first-chapter-id', (_, info) => {
+      if (info.status === 'ok') {
+        setReadCh(info.id)
+      } else {
+        message.error('获取章节信息失败')
+      }
+    })
     return () => {
       PubSub.unsubscribe('menu-loaded')
+      PubSub.unsubscribe('first-chapter-id')
     }
   }, [])
 
@@ -58,9 +67,14 @@ const BookInfo: React.FC = () => {
     reqBookInfo(bookId!)
     // 判断是否已经在书架中
     const list: bookshelfObj[] = storage.get('BOOKSHELF_LIST') ? JSON.parse(storage.get('BOOKSHELF_LIST')!) : []
-    if (list.some((i) => i.id === bookId)) {
-      setIsInShelf(true)
-    }
+    list.some((i) => {
+      if (i.id === bookId) {
+        setIsInShelf(true)
+        if (i.chapter) setReadCh(i.chapter.id)
+        return true
+      }
+      return false
+    })
   }, [bookId])
 
   // 顶部栏渐隐渐显
@@ -81,6 +95,17 @@ const BookInfo: React.FC = () => {
     })
     storage.save('BOOKSHELF_LIST', list)
     setIsInShelf(true)
+  }
+
+  // 开始/继续阅读
+  const handleStartRead = () => {
+    if (!readCh) {
+      // 无阅读记录，获取首章id
+      PubSub.publish('request-first-chapter')
+    } else {
+      // 继续阅读
+      console.log(readCh)
+    }
   }
 
   return (
@@ -125,8 +150,9 @@ const BookInfo: React.FC = () => {
           shape="round"
           size="large"
           loading={!isMenuLoaded}
+          onClick={handleStartRead}
         >
-          开始阅读
+          {readCh ? '继续阅读' : '开始阅读'}
         </Button>
       </div>
     </Spin>

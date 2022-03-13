@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Spin, Row, message } from 'antd'
 import './index.less'
 
@@ -17,11 +16,11 @@ interface cateDataObj {
 
 interface HomeProps {
   active: string
-  setActive: React.Dispatch<React.SetStateAction<string>>
+  setActive: React.Dispatch<React.SetStateAction<string>>,
+  handleClickSortItem: Function
 }
 
 const Home: React.FC<HomeProps> = (props) => {
-  const navigate = useNavigate()
   const [cateData, setCateData] = useState(null)
   const [activeData, setActiveData] = useState(null)
   // const [active, setActive] = useState<string>('male')
@@ -29,7 +28,7 @@ const Home: React.FC<HomeProps> = (props) => {
   const [total, setTotal] = useState<number>(0)
   const scrollRef = useRef<any>(null)
 
-  const { active, setActive } = props
+  const { active, setActive, handleClickSortItem } = props
 
   const reqCate = async () => {
     const res = await getCate()
@@ -75,9 +74,9 @@ const Home: React.FC<HomeProps> = (props) => {
     setTotal(sum)
   }
 
-  const handleClickSortItem = (name: string) => {
-    navigate('/sort/detail', { state: { cate: name } })
-  }
+  // const handleClickSortItem = (name: string) => {
+  //   navigate('/sort/detail', { state: { cate: name } })
+  // }
 
   return (
     <Spin spinning={loading} size="large" tip="加载中...">

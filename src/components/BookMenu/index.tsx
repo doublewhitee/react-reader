@@ -33,6 +33,7 @@ const BookMenu: React.FC<BookMenuProps> = (props) => {
 
   const { title, author, isVisible, setIsVisible, width } = props
 
+  // 获取笔趣阁的本书ID
   const reqBiQuGeID = async () => {
     setLoading(true)
     const res = await getBiQuGeID(title)
@@ -40,9 +41,10 @@ const BookMenu: React.FC<BookMenuProps> = (props) => {
       const { data } = res
       // 去除作者名前的空格和.
       const au = author.trim().replace(/(^\.*)|(\.*$)/g, '').trim()
+      const ti = title.trim().replace(/(^\.*)|(\.*$)/g, '').trim()
       // 查找是否存在该书籍
       data.data.some((item: any) => {
-        if (item.Name === title && item.Author === au) {
+        if (item.Name === ti && item.Author === au) {
           setBiqugeID(item.Id)
           return true
         }
@@ -54,6 +56,7 @@ const BookMenu: React.FC<BookMenuProps> = (props) => {
     setLoading(false)
   }
 
+  // 获取目录
   const reqBookMenu = async (id: string) => {
     setLoading(true)
     const res = await getBookMenu(id)
@@ -62,6 +65,8 @@ const BookMenu: React.FC<BookMenuProps> = (props) => {
       // 去除错误格式
       data = JSON.parse(data.replace(/\},\]/g, '}]'))
       setMenuList(data.data.list)
+      // 发送加载完成信号
+      PubSub.publish('menu-loaded', true)
     } else {
       message.error('似乎出了一点问题...')
     }
@@ -69,10 +74,21 @@ const BookMenu: React.FC<BookMenuProps> = (props) => {
   }
 
   useEffect(() => {
+    PubSub.subscribe('request-first-chapter', () => {
+      if (menuList && menuList[0] && menuList[0].list) {
+        PubSub.publish('first-chapter-id', { id: menuList[0].list[0].id, status: 'ok' })
+      } else {
+        PubSub.publish('first-chapter-id', { status: 'error' })
+      }
+    })
+    return () => {
+      PubSub.unsubscribe('request-first-chapter')
+    }
+  }, [menuList])
+
+  useEffect(() => {
     if (title !== '') {
-      reqBiQuGeID().then(() => {
-        PubSub.publish('menu-loaded')
-      })
+      reqBiQuGeID()
     }
   }, [title])
 

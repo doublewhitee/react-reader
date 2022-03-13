@@ -14,7 +14,6 @@ const bookTypes: any = { hot: '热门', new: '新书', repulation: '好评', ove
 
 interface DetailProps {
   minorCate: string[]
-  gender: string
 }
 
 interface bookListObj {
@@ -37,7 +36,7 @@ const Detail: React.FC<DetailProps> = (props) => {
   const [isPullingUp, setIsPullingUp] = useState<boolean>(false) // 上拉状态
   const [isEnd, setIsEnd] = useState<boolean>(false) // 是否加载完成
 
-  const { minorCate, gender } = props
+  const { minorCate } = props
 
   const reqBookList = async (
     type: string,
@@ -77,7 +76,7 @@ const Detail: React.FC<DetailProps> = (props) => {
     if (!location.state) {
       navigate('/sort/index')
     } else {
-      reqBookList(checkedTag.type, gender, (location.state as any).cate, 0)
+      reqBookList(checkedTag.type, (location.state as any).gender, (location.state as any).cate, 0)
       PubSub.subscribe('pull-up', () => {
         setIsPullingUp(true)
       })
@@ -93,7 +92,7 @@ const Detail: React.FC<DetailProps> = (props) => {
       if (!isEnd) {
         reqBookList(
           checkedTag.type,
-          gender,
+          (location.state as any).gender,
           (location.state as any).cate,
           bookList.length
         ).then(() => {
@@ -122,7 +121,13 @@ const Detail: React.FC<DetailProps> = (props) => {
     // 清空booklist数据，重置isEnd
     setBookList([])
     setIsEnd(false)
-    await reqBookList(tags.type, gender, (location.state as any).cate, 0, tags.cate)
+    await reqBookList(
+      tags.type,
+      (location.state as any).gender,
+      (location.state as any).cate,
+      0,
+      tags.cate
+    )
     // scroll回到顶部
     scrollRef3.current?.scrollTo(0, 0)
   }
