@@ -301,6 +301,7 @@ const Detail: React.FC<detailProps> = (props) => {
       </Tabs>
 
       <BookMenu
+        bookId={bookId}
         title={title}
         author={author}
         isVisible={visible}

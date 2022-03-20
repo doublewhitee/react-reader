@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Button, Spin, message } from 'antd'
 import { ReadOutlined } from '@ant-design/icons'
 import PubSub from 'pubsub-js'
@@ -15,23 +15,26 @@ import Detail from './Detail'
 
 interface bookshelfObj {
   id: string
+  biqugeId: string
   name: string
   author: string
   cover: string
-  chapter?: {
+  chapter: {
     id: string
-    name: string
+    name?: string
   }
 }
 
 const BookInfo: React.FC = () => {
   const { bookId } = useParams()
+  const navigate = useNavigate()
   const [loading, setLoading] = useState<boolean>()
   const [bookInfo, setBookInfo] = useState<any>()
   const [topBarOpacity, setTopBarOpacity] = useState<number>(0)
-  const [isMenuLoaded, setIsMenuLoaded] = useState<boolean>(false) // 目录是否加载完毕
-  const [isInShelf, setIsInShelf] = useState<boolean>(false) // 是否已在书架
-  const [readCh, setReadCh] = useState<string|null>(null) // 当前阅读章节id记录
+  const [isMenuLoaded, setIsMenuLoaded] = useState<'y' | 'n' | 'error'>('n') // 目录是否加载完毕
+  const [shelfBookInfo, setShelfBookInfo] = useState<bookshelfObj>() // 书架内存储的信息，判断是否已在书架
+  const [biqugeId, setBiqugeId] = useState<string>('') // 笔趣阁ID
+  const [readCh, setReadCh] = useState<string|null>(null) // 首个章节id记录
 
   const reqBookInfo = async (id: string) => {
     setLoading(true)
@@ -46,31 +49,28 @@ const BookInfo: React.FC = () => {
   }
 
   useEffect(() => {
-    PubSub.subscribe('menu-loaded', () => {
-      setIsMenuLoaded(true)
-    })
-    PubSub.subscribe('first-chapter-id', (_, info) => {
+    PubSub.subscribe('menu-loaded', (_, info) => {
       if (info.status === 'ok') {
+        setIsMenuLoaded('y')
+        setBiqugeId(info.biquge)
         setReadCh(info.id)
       } else {
+        setIsMenuLoaded('error')
         message.error('获取章节信息失败')
       }
     })
     return () => {
       PubSub.unsubscribe('menu-loaded')
-      PubSub.unsubscribe('first-chapter-id')
     }
   }, [])
 
   useEffect(() => {
-    setIsInShelf(false)
     reqBookInfo(bookId!)
     // 判断是否已经在书架中
     const list: bookshelfObj[] = storage.get('BOOKSHELF_LIST') ? JSON.parse(storage.get('BOOKSHELF_LIST')!) : []
     list.some((i) => {
       if (i.id === bookId) {
-        setIsInShelf(true)
-        if (i.chapter) setReadCh(i.chapter.id)
+        setShelfBookInfo(i)
         return true
       }
       return false
@@ -91,20 +91,33 @@ const BookInfo: React.FC = () => {
       id: bookId!,
       name: bookInfo.title,
       author: bookInfo.author,
-      cover: bookInfo.cover
+      cover: bookInfo.cover,
+      biqugeId,
+      chapter: {
+        id: readCh!
+      }
     })
     storage.save('BOOKSHELF_LIST', list)
-    setIsInShelf(true)
+    setShelfBookInfo({
+      id: bookId!,
+      name: bookInfo.title,
+      author: bookInfo.author,
+      cover: bookInfo.cover,
+      biqugeId,
+      chapter: {
+        id: readCh!
+      }
+    })
   }
 
   // 开始/继续阅读
   const handleStartRead = () => {
-    if (!readCh) {
-      // 无阅读记录，获取首章id
-      PubSub.publish('request-first-chapter')
+    if (!shelfBookInfo || (shelfBookInfo && !shelfBookInfo.chapter.name)) {
+      // 无书架阅读记录，获取首章id
+      navigate(`/read/${bookId}/${biqugeId}/${readCh}`)
     } else {
       // 继续阅读
-      console.log(readCh)
+      navigate(`/read/${bookId}/${biqugeId}/${shelfBookInfo.chapter.id}`)
     }
   }
 
@@ -141,18 +154,24 @@ const BookInfo: React.FC = () => {
       </div>
 
       <div className="bottom-bar">
-        <Button type="link" onClick={handleAddShelf} disabled={isInShelf}>
+        <Button
+          type="link"
+          onClick={handleAddShelf}
+          disabled={shelfBookInfo !== undefined || isMenuLoaded === 'error'}
+          loading={isMenuLoaded === 'n'}
+        >
           <ReadOutlined />
-          {isInShelf ? '已在书架' : '加入书架'}
+          {shelfBookInfo !== undefined ? '已在书架' : '加入书架'}
         </Button>
         <Button
           type="primary"
           shape="round"
           size="large"
-          loading={!isMenuLoaded}
+          loading={isMenuLoaded === 'n'}
+          disabled={isMenuLoaded === 'error'}
           onClick={handleStartRead}
         >
-          {readCh ? '继续阅读' : '开始阅读'}
+          {shelfBookInfo && shelfBookInfo.chapter.name ? '继续阅读' : '开始阅读'}
         </Button>
       </div>
     </Spin>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Row, Col, Empty, Button, Checkbox, message } from 'antd'
 import { AppstoreAddOutlined, BarsOutlined } from '@ant-design/icons'
 import './index.less'
@@ -11,16 +12,18 @@ import storage from '../../utils/storage'
 
 interface bookshelfObj {
   id: string
+  biqugeId: string
   name: string
   author: string
   cover: string
-  chapter?: {
+  chapter: {
     id: string
-    name: string
+    name?: string
   }
 }
 
 const Bookshelf: React.FC = () => {
+  const navigate = useNavigate()
   const [bookshelfList, setBookshelfList] = useState<bookshelfObj[]>([])
   const [displayStyle, setDisplayStyle] = useState<'pic'|'list'>('pic') // 页面布局[图墙|列表]
   const [longTouch, setLongTouch] = useState<boolean>(false) // 是否长按
@@ -70,6 +73,9 @@ const Bookshelf: React.FC = () => {
         list.splice(checkedList.indexOf(id), 1)
       }
       setCheckedList(list)
+    } else {
+      const item: bookshelfObj | undefined = bookshelfList.find((i) => i.id === id)
+      navigate(`/read/${id}/${item?.biqugeId}/${item?.chapter.id}`)
     }
   }
 
@@ -135,10 +141,11 @@ const Bookshelf: React.FC = () => {
             onChange={handleCheckChange}
             defaultValue={checkedList}
             value={checkedList}
+            style={{ width: '100%' }}
           >
             <Row style={{ alignItems: 'center' }}>
               {
-                bookshelfList.length === 0 ? <Empty />
+                bookshelfList.length === 0 ? <Empty style={{ width: '100%' }} />
                   : bookshelfList.map((item) => (
                     <Fragment key={item.id}>
                       <Col
@@ -159,7 +166,7 @@ const Bookshelf: React.FC = () => {
                           displayStyle === 'pic' ? (
                             <div>
                               <div className="book-title">{item.name}</div>
-                              <div className="book-info">{item.chapter ? item.chapter.name : '尚未阅读'}</div>
+                              <div className="book-info">{item.chapter.name ? item.chapter.name : '尚未阅读'}</div>
                             </div>
                           ) : ''
                         }
@@ -175,7 +182,7 @@ const Bookshelf: React.FC = () => {
                       >
                         <div className="book-title">{item.name}</div>
                         <div className="book-info">{item.author}</div>
-                        <div className="book-info">{item.chapter ? item.chapter.name : '尚未阅读'}</div>
+                        <div className="book-info">{item.chapter.name ? item.chapter.name : '尚未阅读'}</div>
                       </Col>
                     </Fragment>
                   ))

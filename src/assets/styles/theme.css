@@ -1,7 +1,39 @@
-.light {
-  --background-color: #FFF;
-  --sub-background-color: #282c34;
-  --text-color: #1DA57A;
+.light1 {
+  --background-color: #000;
+  --sub-background-color: #C3B298;
+  --text-color: #000;
   --sub-text-color: #282c34;
   --link-color: #FFF;
+}
+
+.light2 {
+  --background-color: #000;
+  --sub-background-color: #C3D4E6;
+  --text-color: #282c34;
+  --sub-text-color: #282c34;
+  --link-color: #FFF;
+}
+
+.light3 {
+  --background-color: #000;
+  --sub-background-color: #C8E8C8;
+  --text-color: #000;
+  --sub-text-color: #282c34;
+  --link-color: #FFF;
+}
+
+.light4 {
+  --background-color: #000;
+  --sub-background-color: #FFF;
+  --text-color: #000;
+  --sub-text-color: #282c34;
+  --link-color: #FFF;
+}
+
+.night {
+  --background-color: rgba(0, 0, 0, .9);
+  --sub-background-color: #1a1a1a;
+  --text-color: rgba(255,255,255,.5);
+  --sub-text-color: #282c34;
+  --link-color: #1a1a1a;
 }

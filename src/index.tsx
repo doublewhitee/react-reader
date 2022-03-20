@@ -18,6 +18,3 @@ ReactDOM.render(
   </ConfigProvider>,
   document.getElementById('root')
 )
-
-// todo
-document.getElementById('root')!.className = 'light'

@@ -22,10 +22,17 @@ export function getBiQuGeID(key: string) {
   })
 }
 
-// 获取章节列表
+// 获取章节列表[笔趣阁2]
 export function getBookMenu(id: string | number) {
   return bqgRequest2({
     url: `/book/${id}/`
+  })
+}
+
+// 获取章节内容
+export function getChapter(id: string | number, chapterId: string | number) {
+  return bqgRequest2({
+    url: `/book/${id}/${chapterId}.html`
   })
 }
 
