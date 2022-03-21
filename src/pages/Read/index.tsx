@@ -1,8 +1,9 @@
 /* eslint-disable no-lonely-if */
 import React, { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { Drawer, Row, Col, Spin, Slider, message } from 'antd'
+import { Drawer, Row, Col, Spin, Slider, Progress, message } from 'antd'
 import { MenuOutlined, SettingOutlined, LeftOutlined, EllipsisOutlined, CheckOutlined, createFromIconfontCN } from '@ant-design/icons'
+import PubSub from 'pubsub-js'
 import './index.less'
 
 import BookMenu from '../../components/BookMenu'
@@ -57,10 +58,15 @@ const Read: React.FC = () => {
   const [pageTranslateX, setPageTranslateX] = useState<number>(0) // 偏移量
   const [readSettings, setReadSettings] = useState<readSettingObj>() // 阅读设置
   const [menuVisible, setMenuVisible] = useState<boolean>(false)
-  // const [isProgress, setIsProgress] = useState<boolean>(false)
+  const [isProgress, setIsProgress] = useState<boolean>(false)
   const [isSetting, setIsSetting] = useState<boolean>(false)
   const [readMenuHeight, setReadMenuHeight] = useState<number>(60)
   const [reCalcPageTimer, setReCalcPageTimer] = useState<any>(null) // 重新计算页数
+  const [isProgressLoading, setIsProgressLoading] = useState<boolean>(true)
+  const [totalChapter, setTotalChapter] = useState<number>(0) // 章节总数
+  const [currentChapterIndex, setcurrentChapterIndex] = useState<number>(-1) // 当前章节位置
+  const [touchStart, setTouchStart] = useState<number>(0) // 触摸开始位置(X)
+  const [touchEnd, setTouchEnd] = useState<number>(-1) // 触摸结束位置
   const contentRef = useRef() as React.LegacyRef<HTMLDivElement>
 
   const params = useParams()
@@ -119,6 +125,21 @@ const Read: React.FC = () => {
         readerDiv?.classList.add(readSetting.displayMode!)
       }
     }
+    // 获取章节总数
+    PubSub.subscribe('menu-loaded', (_, info) => {
+      if (info.status === 'ok') {
+        setTotalChapter(info.chapterCount)
+      }
+    })
+    // 当前章节
+    PubSub.subscribe('current-chapter-index', (_, index) => {
+      setcurrentChapterIndex(index)
+      setIsProgressLoading(false)
+    })
+    return () => {
+      PubSub.unsubscribe('menu-loaded')
+      PubSub.unsubscribe('current-chapter-index')
+    }
   }, [])
 
   useEffect(() => {
@@ -128,6 +149,11 @@ const Read: React.FC = () => {
     } else {
       // 请求章节信息
       reqChapter(params.bqgBookId!, params.chapterId!)
+      // 关闭进度及设置
+      setIsProgress(false)
+      setIsSetting(false)
+      setcurrentChapterIndex(-1)
+      setReadMenuHeight(60)
     }
   }, [location])
 
@@ -171,7 +197,10 @@ const Read: React.FC = () => {
 
   const handlePrePage = () => {
     const p = currentPage
-    if (loadingState !== 'n') return
+    if (loadingState !== 'n') {
+      message.info('章节信息获取错误，请从目录跳转')
+      return
+    }
     if (p > 1) {
       const { clientWidth } = document.body
       setCurrentPage((page) => page - 1);
@@ -188,7 +217,10 @@ const Read: React.FC = () => {
 
   const handleNextPage = () => {
     const p = currentPage
-    if (loadingState !== 'n') return
+    if (loadingState !== 'n') {
+      message.info('章节信息获取错误，请从目录跳转')
+      return
+    }
     if (p < pages) {
       const { clientWidth } = document.body
       setCurrentPage((page) => page + 1)
@@ -218,6 +250,17 @@ const Read: React.FC = () => {
     }
   }
 
+  // 进度
+  const handleProgress = () => {
+    if (isProgress) {
+      setReadMenuHeight(60)
+    } else {
+      setReadMenuHeight(110)
+    }
+    setIsProgress((s) => !s)
+    setIsSetting(false)
+  }
+
   // 设置
   const handleSetting = () => {
     if (isSetting) {
@@ -226,6 +269,7 @@ const Read: React.FC = () => {
       setReadMenuHeight(180)
     }
     setIsSetting((s) => !s)
+    setIsProgress(false)
   }
 
   // 修改字体/行高
@@ -246,10 +290,54 @@ const Read: React.FC = () => {
     }
   }
 
+  const handlePre = () => {
+    if (chapterDetail!.pid === -1) {
+      message.info('已经到第一章了')
+    } else {
+      navigate(`/read/${params.bookId}/${params.bqgBookId}/${chapterDetail!.pid}`, { replace: true })
+    }
+  }
+
+  const handleNext = () => {
+    if (chapterDetail!.nid === -1) {
+      message.info('已经到最后一章了')
+    } else {
+      navigate(`/read/${params.bookId}/${params.bqgBookId}/${chapterDetail!.nid}`, { replace: true })
+    }
+  }
+
+  // 开始移动
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX)
+    e.stopPropagation()
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.touches[0].clientX)
+    e.stopPropagation()
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    // 左滑，进入下一页
+    if (touchStart - touchEnd > 80 && touchEnd !== -1) {
+      handleNextPage()
+    } else if (touchEnd - touchStart > 80 && touchEnd !== -1) {
+      handlePrePage()
+    }
+    setTouchStart(0)
+    setTouchEnd(-1)
+    e.stopPropagation()
+  }
+
   return (
     <div style={{ position: 'relative' }} id="reader">
       <Spin spinning={loadingState === 'y'} size="large" tip="加载中...">
-        <Row className="read-mask">
+        <Row
+          className="read-mask"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <Col span={8} onClick={handlePrePage} />
           <Col span={8} onClick={handleClickCenter} />
           <Col span={8} onClick={handleNextPage} />
@@ -279,6 +367,26 @@ const Read: React.FC = () => {
           className="read-menu"
           mask={false}
         >
+          {
+            isProgress ? (
+              <div style={{ height: '30px', margin: '15px 0' }}>
+                <Spin spinning={isProgressLoading}>
+                  <Row align="middle">
+                    <Col span={4} style={{ textAlign: 'center' }} onClick={handlePre}>上一章</Col>
+                    <Col span={16}>
+                      <Progress
+                        percent={currentChapterIndex !== -1 && totalChapter !== 0
+                          ? (currentChapterIndex / totalChapter) * 100 : 50}
+                        showInfo={false}
+                        strokeWidth={5}
+                      />
+                    </Col>
+                    <Col span={4} style={{ textAlign: 'center' }} onClick={handleNext}>下一章</Col>
+                  </Row>
+                </Spin>
+              </div>
+            ) : null
+          }
           {
             isSetting ? (
               <div style={{ height: '110px', margin: '10px 0' }}>
@@ -361,7 +469,13 @@ const Read: React.FC = () => {
               <div>目录</div>
             </div>
 
-            <div style={{ textAlign: 'center', flex: 1 }}>
+            <div
+              style={{ textAlign: 'center', flex: 1 }}
+              role="tab"
+              tabIndex={0}
+              onClick={handleProgress}
+              onKeyDown={handleProgress}
+            >
               <IconFont type="icon-progress" style={{ fontSize: '20px' }} />
               <div>进度</div>
             </div>
@@ -430,6 +544,7 @@ const Read: React.FC = () => {
         <BookMenu
           bookId={params.bookId!}
           title={chapterDetail ? chapterDetail.name : ''}
+          currentChapterId={chapterDetail ? chapterDetail.cid : ''}
           author=""
           hasBiqugeId={params.bqgBookId}
           isRepalce

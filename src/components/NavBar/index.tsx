@@ -67,7 +67,7 @@ const NavBar: React.FC = () => {
           className="icons"
           style={{ display: activeName === '/recommend' ? '' : 'none' }}
         />
-        <div className={activeName === '/recommend' ? 'active-name' : ''}>精选</div>
+        <div className={activeName === '/recommend' ? 'active-name' : ''}>榜单</div>
       </div>
 
       <div

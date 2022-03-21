@@ -17,6 +17,7 @@ interface BookMenuProps {
   width?: string
   isRepalce?: boolean
   hasBiqugeId?: string // 是否由父组件传入笔趣阁ID
+  currentChapterId?: string | number // 当前阅读到的章节
 }
 
 interface MenuListObj {
@@ -36,7 +37,8 @@ const BookMenu: React.FC<BookMenuProps> = (props) => {
   const [biqugeID, setBiqugeID] = useState<string>('')
   const [menuList, setMenuList] = useState<MenuListObj[]>([])
 
-  const { bookId, title, author, isVisible, setIsVisible, width, isRepalce, hasBiqugeId } = props
+  const { bookId, title, author, isVisible, setIsVisible,
+    width, isRepalce, hasBiqugeId, currentChapterId } = props
 
   // 获取笔趣阁的本书ID
   const reqBiQuGeID = async () => {
@@ -106,6 +108,29 @@ const BookMenu: React.FC<BookMenuProps> = (props) => {
     }
   }, [biqugeID])
 
+  useEffect(() => {
+    if (currentChapterId !== '') {
+      let index = 0
+      let isBreak = false
+      for (let i = 0; i < menuList.length; i += 1) {
+        for (let j = 0; j < menuList[i].list.length; j += 1) {
+          index += 1
+          if (menuList[i].list[j].id === currentChapterId) {
+            isBreak = true
+            break
+          }
+        }
+        if (isBreak) break
+      }
+      if (index !== 0) {
+        PubSub.publish('current-chapter-index', index)
+      }
+      // 显示目录滚动到的位置
+      const div = document.getElementById(currentChapterId!.toString())
+      div?.scrollIntoView()
+    }
+  }, [currentChapterId, menuList])
+
   const handleCloseDrawer = () => {
     setIsVisible(false)
   }
@@ -144,7 +169,9 @@ const BookMenu: React.FC<BookMenuProps> = (props) => {
                         item.list.map((c) => (
                           <div
                             key={c.id}
+                            id={c.id.toString()}
                             className={c.hasContent === 0 ? 'chapter-div unable-ch' : 'chapter-div'}
+                            style={{ color: currentChapterId === c.id ? '#1DA57A' : '' }}
                             role="tab"
                             tabIndex={0}
                             onClick={() => handleClickItem(c.id)}
@@ -173,7 +200,8 @@ const BookMenu: React.FC<BookMenuProps> = (props) => {
 BookMenu.defaultProps = {
   width: '100%',
   isRepalce: false,
-  hasBiqugeId: ''
+  hasBiqugeId: '',
+  currentChapterId: ''
 }
 
 export default BookMenu
