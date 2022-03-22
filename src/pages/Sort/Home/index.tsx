@@ -79,7 +79,7 @@ const Home: React.FC<HomeProps> = (props) => {
   // }
 
   return (
-    <Spin spinning={loading} size="large" tip="加载中...">
+    <Spin spinning={loading} size="large" tip="加载中..." style={{ height: 'calc(100vh - 110px)' }}>
       <div id="sort">
         <LeftBar
           width={30}
