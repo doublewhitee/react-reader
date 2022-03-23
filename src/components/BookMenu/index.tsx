@@ -125,11 +125,14 @@ const BookMenu: React.FC<BookMenuProps> = (props) => {
       if (index !== 0) {
         PubSub.publish('current-chapter-index', index)
       }
-      // 显示目录滚动到的位置
-      const div = document.getElementById(currentChapterId!.toString())
-      div?.scrollIntoView()
     }
   }, [currentChapterId, menuList])
+
+  useEffect(() => {
+    // 显示目录滚动到的位置
+    const div = document.getElementById(currentChapterId!.toString())
+    div?.scrollIntoView()
+  }, [menuList, isVisible])
 
   const handleCloseDrawer = () => {
     setIsVisible(false)
