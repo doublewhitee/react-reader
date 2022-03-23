@@ -1,46 +1,85 @@
-# Getting Started with Create React App
+# react-reader
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 项目介绍
 
-## Available Scripts
+这是一个基于React+TypeScript开发的小说阅读器WebApp。
 
-In the project directory, you can run:
+## 后端接口
 
-### `yarn start`
+本项目使用了追书神器和笔趣阁的API。
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+[追书神器API文档](https://github.com/shichunlei/-Api/blob/master/%E8%BF%BD%E4%B9%A6%E7%A5%9E%E5%99%A8.md)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+[笔趣阁API文档](https://blog.csdn.net/weixin_46291378/article/details/112320747)
 
-### `yarn test`
+项目中在榜单、分类、搜索及书籍详细信息中使用追书神器的API，但由于追书神器现在已经获取不到小说内容，因此在这一部分使用了笔趣阁API。由于两者的Book_id不同，在某些功能的实现上会显得有些冗杂。
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 技术栈
 
-### `yarn build`
+本项目使用 react + typescript + react-router-dom + axios 实现。
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- antd：react组件库。
+- http-proxy-middleware：前端配置代理中间件。
+- better-scroll：移动端滚动插件。
+- pubsub-js：发布/订阅库。
+- react-router-dom：react-router-dom v6，相较于之前用过的版本变化挺多的。
+- less：css开发工具。
+- eslint：使得代码风格统一。
+- gh-pages：发布GitHub Pages（配置但未使用）。
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 主要功能
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
++ 书架 - localStorage存储书架信息
+  
+  + 长按编辑
+  
+  + 列表/图墙模式切换
 
-### `yarn eject`
++ 榜单
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
++ 分类
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
++ 小说详情界面
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
++ 阅读界面
+  
+  + 查看阅读进度
+  
+  + 日间/夜间模式
+  
+  + 修改字体、行距及主题
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
++ 搜索发现
 
-## Learn More
+## 安装及运行
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```
+git clone https://github.com/doublewhitee/react-reader.git
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+// 进入前端项目目录
+cd react-reader
+
+// 安装依赖
+yarn
+
+// 启动开发服务器
+yarn start
+
+// 编译前端代码
+yarn build
+```
+
+## 项目截图
+
+**书架**
+
+<img src="https://github.com/doublewhitee/react-reader/blob/main/screenshot/bookshelf_1.png?raw=true" title="" alt="img" height="400">     <img src="https://github.com/doublewhitee/react-reader/blob/main/screenshot/bookshelf_2.png?raw=true" title="" alt="img" height="400">
+
+**阅读**
+
+<img title="" src="https://github.com/doublewhitee/react-reader/blob/main/screenshot/read_1.png?raw=true" alt="img" height="400">     <img title="" src="https://github.com/doublewhitee/react-reader/blob/main/screenshot/read_2.png?raw=true" alt="img" height="400">
+<img title="" src="https://github.com/doublewhitee/react-reader/blob/main/screenshot/read_3.png?raw=true" alt="img" height="400">     <img title="" src="https://github.com/doublewhitee/react-reader/blob/main/screenshot/read_4.png?raw=true" alt="img" height="400">
+
+**其他**
+
+<img title="" src="https://github.com/doublewhitee/react-reader/blob/main/screenshot/recommend.png?raw=true" alt="img" height="400">     <img title="" src="https://github.com/doublewhitee/react-reader/blob/main/screenshot/sort.png?raw=true" alt="img" height="400">     <img title="" src="https://github.com/doublewhitee/react-reader/blob/main/screenshot/search.png?raw=true" alt="img" height="400">
